@@ -1,24 +1,22 @@
-# Simple single-stage Dockerfile for full-stack app
-FROM node:20-alpine
+# Fixed simple Dockerfile for full-stack app (absolute WORKDIR paths, correct backend copy/build)
+FROM node:20-alpine AS builder
 
-# Install dependencies for frontend build
-WORKDIR /tmp/frontend
+WORKDIR /workspace/frontend
 COPY frontend/package*.json ./
-RUN npm install
-
-# Build frontend
+RUN npm ci
 COPY frontend/ ./
 RUN npm run build
 
-# Setup backend
+FROM node:20-alpine
+
 WORKDIR /app
 COPY backend/package*.json ./
-RUN npm install --production
+RUN npm ci --only=production
+COPY backend/ ./ 
+COPY --from=builder /workspace/frontend/dist ./public
 
-COPY backend/ ./backend
-RUN mv /tmp/frontend/dist ./public
-
-# Backend entry (serve static + API)
-WORKDIR /app/backend
 EXPOSE 3000
-CMD ["node", "src/index.js"]
+
+HEALTHCHECK --interval=30s --timeout=3s CMD curl -f http://localhost:3000/health || exit 1
+
+CMD ["npm", "start"]
