@@ -15,7 +15,7 @@ app.use(cors({
   credentials: true
 }));
 app.use(express.json());
-app.use(express.static(path.join(__dirname, 'public')));
+app.use(express.static(path.join(__dirname, '../public')));
 app.use(requestLogger);
 
 // SPA fallback: catch all non-API routes and serve index.html
@@ -23,7 +23,7 @@ app.get(['/', '/login', '/dashboard', '*'], (req, res, next) => {
   if (req.path.match(/^\/api/) || req.path.match(/^\/health/)) {
     return next();
   }
-  res.sendFile(path.join(__dirname, 'public/index.html'));
+  res.sendFile(path.join(__dirname, '../public/index.html'));
 });
 
 // API Routes
