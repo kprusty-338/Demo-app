@@ -1,26 +1,24 @@
-FROM node:20-alpine AS frontend-builder
+# Simple single-stage Dockerfile for full-stack app
+FROM node:20-alpine
 
-WORKDIR /app/frontend
+# Install dependencies for frontend build
+WORKDIR /tmp/frontend
 COPY frontend/package*.json ./
-RUN npm ci --only=production && npm ci --only=dev
+RUN npm install
+
+# Build frontend
 COPY frontend/ ./
 RUN npm run build
 
-FROM node:20-alpine AS backend
-
+# Setup backend
 WORKDIR /app
 COPY backend/package*.json ./
-RUN npm ci --only=production
+RUN npm install --production
 
-# Copy backend source
-COPY backend/src ./src
+COPY backend/ ./backend
+RUN mv /tmp/frontend/dist ./public
 
-# Copy built frontend to public
-COPY --from=frontend-builder /app/frontend/dist ./public
-
+# Backend entry (serve static + API)
+WORKDIR /app/backend
 EXPOSE 3000
-
-HEALTHCHECK --interval=30s --timeout=3s --start-period=5s --retries=3 \
-  CMD wget --no-verbose --tries=1 --spider http://localhost:3000/health || exit 1
-
-CMD ["npm", "start"]
+CMD ["node", "src/index.js"]
