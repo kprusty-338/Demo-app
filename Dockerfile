@@ -1,22 +1,22 @@
-# Ultra-simple single-stage Dockerfile
+# Simplest possible Dockerfile for the full-stack app
 FROM node:20-alpine
 
 WORKDIR /app
 
-# Copy & install backend first (for caching)
-COPY backend/package*.json ./backend/
-RUN cd backend && npm ci --only=production
+# Copy all project files
+COPY . .
 
-# Copy backend source
-COPY backend/ ./backend/
+# Install frontend deps and build
+RUN cd frontend && npm install && npm run build
 
-# Copy frontend, build into backend/public
-COPY frontend/package*.json ./frontend/
-RUN cd frontend && npm ci && npm run build
+# Install backend deps
+RUN cd backend && npm install
+
+# Move frontend build to backend public
 RUN mkdir -p backend/public && cp -r frontend/dist/* backend/public/ || true
 
-# Install backend path module if needed (already there)
+# Serve from backend
+WORKDIR /app/backend
 EXPOSE 3000
 
-WORKDIR /app/backend
 CMD ["npm", "start"]
