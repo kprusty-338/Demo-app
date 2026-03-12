@@ -15,9 +15,9 @@ spec:
       containers:
       - name: demo-app
         image: kiranprusty/demo-app:v2
-        imagePullPolicy: IfNotPresent
         ports:
         - containerPort: 3000
+        imagePullPolicy: IfNotPresent
 ---
 apiVersion: v1
 kind: Service
