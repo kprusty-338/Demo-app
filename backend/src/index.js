@@ -23,7 +23,6 @@ app.get(['/', '/login', '/dashboard', '*'], (req, res, next) => {
   if (req.path.match(/^\/api/) || req.path.match(/^\/health/)) {
     return next();
   }
-  res.sendFile(path.join(__dirname, '../public/index.html'));
 });
 
 // API Routes
@@ -44,9 +43,10 @@ async function startServer() {
     console.log('Database initialized successfully');
     console.log('Full-stack app ready at http://localhost:3000');
     
-    app.listen(PORT, () => {
-      console.log(`Server running on http://localhost:${PORT}`);
+    app.listen(PORT, '0.0.0.0', () => {
+      console.log(`Server running on http://0.0.0.0:${PORT}`);
     });
+
   } catch (error) {
     console.error('Failed to start server:', error);
     process.exit(1);
