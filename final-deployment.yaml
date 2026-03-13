@@ -2,6 +2,7 @@ apiVersion: apps/v1
 kind: Deployment
 metadata:
   name: demo-app
+  namespace: kiran
 spec:
   replicas: 2
   selector:
@@ -13,7 +14,7 @@ spec:
         app: demo-app
     spec:
       imagePullSecrets:
-      - name: app-secret
+        - name: dockerhub-secret
       containers:
       - name: demo-app
         image: kiranprusty/demo-app:v2
@@ -46,10 +47,12 @@ apiVersion: v1
 kind: Service
 metadata:
   name: demo-app-svc
+  naemespace: kiran
 spec:
+  type: NodePort
   selector:
     app: demo-app
   ports:
   - port: 3000
     targetPort: 3000
-  type: NodePort
+
